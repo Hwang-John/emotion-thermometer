@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>감정 온도계</title>
+  <style>
+    body {
+      font-family: "Noto Sans KR", sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: #f2f2f2;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+    .buttons button {
+      margin: 5px;
+      padding: 10px 16px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ddd;
+      cursor: pointer;
+    }
+    .buttons button.selected {
+      background-color: #ff8080;
+      color: white;
+    }
+    .thermometer {
+      width: 60px;
+      height: 200px;
+      border: 3px solid #333;
+      border-radius: 30px;
+      margin: 30px auto;
+      position: relative;
+      background: #fff;
+      overflow: hidden;
+    }
+    .mercury {
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      border-radius: 30px;
+      transition: height 0.5s ease, background-color 0.5s ease;
+    }
+    #tempDisplay {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+    .reason-box {
+      margin-top: 40px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    textarea {
+      width: 100%;
+      height: 80px;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: none;
+    }
+    #reasonDisplay {
+      margin-top: 10px;
+      font-style: italic;
+      color: #555;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>감정 온도계</h1>
+
+  <div class="buttons" id="emotionButtons"></div>
+
+  <div id="tempDisplay">현재 감정 온도: --도</div>
+  <div class="thermometer">
+    <div class="mercury" id="mercury" style="height: 0%"></div>
+  </div>
+
+  <div class="reason-box">
+    <p>왜 이런 감정을 선택했는지 적어보세요:</p>
+    <textarea id="reasonInput" placeholder="예: 오늘 좋은 소식을 들어서 기분이 좋아요."></textarea>
+    <div id="reasonDisplay"></div>
+  </div>
+
+  <script>
+    const emotions = {
+      '행복': 40,
+      '슬픔': 10,
+      '화남': 45,
+      '불안': 25,
+      '사랑': 42,
+      '지루함': 15,
+      '놀람': 38,
+      '평온': 30,
+      '외로움': 12,
+      '신남': 48,
+      '피곤함': 20
+    };
+
+    const selectedEmotions = new Set();
+    const container = document.getElementById("emotionButtons");
+
+    // 버튼 생성
+    for (let emotion in emotions) {
+      const btn = document.createElement("button");
+      btn.innerText = emotion;
+      btn.onclick = () => toggleEmotion(emotion, btn);
+      container.appendChild(btn);
+    }
+
+    function toggleEmotion(emotion, btn) {
+      if (selectedEmotions.has(emotion)) {
+        selectedEmotions.delete(emotion);
+        btn.classList.remove("selected");
+      } else {
+        selectedEmotions.add(emotion);
+        btn.classList.add("selected");
+      }
+
+      updateTemperature();
+    }
+
+    function updateTemperature() {
+      const selectedArray = Array.from(selectedEmotions);
+      const mercury = document.getElementById("mercury");
+
+      if (selectedArray.length === 0) {
+        document.getElementById("tempDisplay").innerText = "현재 감정 온도: --도";
+        mercury.style.height = `0%`;
+        mercury.style.backgroundColor = "#99ccff"; // 연한 파랑
+        return;
+      }
+
+      let total = 0;
+      for (let em of selectedArray) {
+        total += emotions[em];
+      }
+
+      const avg = total / selectedArray.length;
+      const heightPercent = (avg / 50) * 100;
+      const color = getColorFromTemp(avg);
+
+      document.getElementById("tempDisplay").innerText = `현재 감정 온도: ${avg.toFixed(1)}도`;
+      mercury.style.height = `${heightPercent}%`;
+      mercury.style.backgroundColor = color;
+    }
+
+    // 온도에 따른 색상 변화 (0도=파랑 → 50도=빨강)
+    function getColorFromTemp(temp) {
+      const ratio = temp / 50; // 0~1
+      const r = Math.floor(153 + ratio * (255 - 153)); // 153 → 255
+      const g = Math.floor(204 - ratio * 204);         // 204 → 0
+      const b = Math.floor(255 - ratio * 255);         // 255 → 0
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    // 이유 입력 핸들링
+    const reasonInput = document.getElementById("reasonInput");
+    const reasonDisplay = document.getElementById("reasonDisplay");
+    reasonInput.addEventListener("input", () => {
+      reasonDisplay.innerText = reasonInput.value;
+    });
+  </script>
+</body>
+</html>
