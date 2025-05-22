@@ -164,12 +164,6 @@
       const b = Math.floor(255 - ratio * 255);         // 255 → 0
       return `rgb(${r}, ${g}, ${b})`;
     }
-
-    // 이유 입력 핸들링
-    const reasonInput = document.getElementById("reasonInput");
-    reasonInput.addEventListener("input", () => {
-      reasonDisplay.innerText = reasonInput.value;
-    });
   </script>
 </body>
 </html>
