@@ -167,7 +167,6 @@
 
     // 이유 입력 핸들링
     const reasonInput = document.getElementById("reasonInput");
-    const reasonDisplay = document.getElementById("reasonDisplay");
     reasonInput.addEventListener("input", () => {
       reasonDisplay.innerText = reasonInput.value;
     });
